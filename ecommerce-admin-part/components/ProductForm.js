@@ -97,7 +97,7 @@ export default function ProductForm({
             <select value={category} onChange={e => setCategory(e.target.value)}>
                 <option value="">Uncategorized</option>
                 {categories.length > 0 && categories.map(category => (
-                    <option value={category._id}>{category.name}</option>
+                    <option key={category._id} value={category._id}>{category.name}</option>
                 ))}
             </select>
             {propertiesToFill.length > 0 && propertiesToFill.map(p => (
@@ -123,7 +123,7 @@ export default function ProductForm({
                 setList={updateImagesOrder}>
                     {!!images?.length && images.map(link => (
                         <div key={link} className="h-24 bg-white p-4 shadow-sm rounded-sm border border-gray-200">
-                            <img src={link} className="rounded-lg"/>
+                            <img key={link} src={link} className="rounded-lg"/>
                         </div>
                     ))}
                 </ReactSortable>
