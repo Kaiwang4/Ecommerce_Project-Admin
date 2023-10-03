@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Spinner from "./Spinner";
 import { ReactSortable } from "react-sortablejs";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 export default function ProductForm({
     _id,
     title: existingTitle,
@@ -24,9 +25,13 @@ export default function ProductForm({
     const [categories, setCategories] = useState([])
     const router = useRouter();
     useEffect(() => {
-        axios.get('/api/categories').then(result => {
+        axios.get(`${API_BASE_URL}/api/categories`).then(result => {
             setCategories(result.data)
         })
+        .catch(error => {
+            console.error('Failed to fetch categories:', error);
+            // You might want to set some state here to show an error message to the user
+        });
     }, [])
     async function saveProduct(e) {
         e.preventDefault();
@@ -34,14 +39,14 @@ export default function ProductForm({
         // console.log(_id);
         if (_id) {
             //update product info
-            await axios.put('/api/products', {...data, _id})
+            await axios.put(`${API_BASE_URL}/api/products`, {...data, _id})
         } else {
             // create new product
-            await axios.post('/api/products', data);
+            await axios.post(`${API_BASE_URL}/api/products`, data);
         }
         setGoToProducts(true);
     }
-    if (goToProducts) router.push('/products');
+    if (goToProducts) router.push(`${API_BASE_URL}/products`);
     async function uploadImages(e) {
         // console.log(e);
         const files = e.target?.files;
@@ -51,7 +56,7 @@ export default function ProductForm({
             for (const file of files) {
                 data.append('file', file)
             }
-            const res = await axios.post('/api/upload', data)
+            const res = await axios.post(`${API_BASE_URL}/api/upload`, data)
             setImages(oldImages => {
                 return [...oldImages, ...res.data.links]
             })
