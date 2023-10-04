@@ -8,7 +8,6 @@ import { isAdminRequest } from '@/pages/api/auth/[...nextauth]';
 export default async function handle(req, res) {
     const {method} = req;
     await mongooseConnect();
-    await isAdminRequest(req, res)
 
     if (method === 'GET') {
         if (req.query?.id) {
@@ -16,7 +15,9 @@ export default async function handle(req, res) {
         } else {
             res.json(await Product.find());
         }
+        return
     }
+    await isAdminRequest(req, res)
 
     if (method === 'POST') {
         const {title, description, price, images, category, properties} = req.body;
