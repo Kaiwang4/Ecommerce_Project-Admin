@@ -16,11 +16,11 @@ export const authOptions = {
     session: ({session, token, user}) => {
       console.log({session, token, user});
       if (adminEmails.includes(session?.user?.email)) {
-        return session
+        session.isAdmin = true
+      } else {
+        session.isAdmin = false
       }
-      // } else {
-      //   return false
-      // }
+      return session
     }
   }
 }
