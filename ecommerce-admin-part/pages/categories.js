@@ -1,5 +1,6 @@
 import Layout from "@/components/Layout";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { withSwal } from 'react-sweetalert2';
 
@@ -9,6 +10,7 @@ function Categories({swal}) {
     const [parentCategory, setParentCategory] = useState('')
     const [categories, setCategories] = useState([])
     const [properties, setProperties] = useState([])
+    const {data: session} = useSession()
     useEffect(() => {
         fetchCategories()
     }, [])
@@ -99,8 +101,8 @@ function Categories({swal}) {
     return (
         <Layout>
             <h1>Categories</h1>
-            <label>{editedCategory? `Edit category ${editedCategory.name}` : 'Create new category'}</label>
-            <form onSubmit={saveCategory}>
+            {session.isAdmin && (<label>{editedCategory? `Edit category ${editedCategory.name}` : 'Create new category'}</label>)}
+            {session.isAdmin && (<form onSubmit={saveCategory}>
                 <div className="flex gap-1">
                     <input 
                     type="text" 
@@ -151,7 +153,7 @@ function Categories({swal}) {
                     )}
                     <button type="submit" className="btn-primary py-1">Save</button>
                 </div>
-            </form>
+            </form>)}
             {!editedCategory && (
                 <table className="basic mt-4">
                     <thead>
@@ -167,8 +169,8 @@ function Categories({swal}) {
                                 <td>{category.name}</td>
                                 <td>{category?.parent?.name}</td>
                                 <td>
-                                    <button onClick={() => editCategory(category)} className="btn-default mr-1">Edit</button>
-                                    <button onClick={() => deleteCategory(category)} className="btn-red">Delete</button>
+                                    {session.isAdmin && (<button onClick={() => editCategory(category)} className="btn-default mr-1">Edit</button>)}
+                                    {session.isAdmin && (<button onClick={() => deleteCategory(category)} className="btn-red">Delete</button>)}
                                 </td>
                             </tr>
                         ))}

@@ -6,12 +6,12 @@ import { authOptions, isAdminRequest } from "./auth/[...nextauth]"
 export default async function handel(req, res) {
     const method = req.method
     await mongooseConnect()
-    await isAdminRequest(req, res)
 
     if (method === 'GET') {
         res.json(await Category.find().populate('parent'))
     }
-
+    await isAdminRequest(req, res)
+    
     if (method === 'POST') {
         const {name, parentCategory, properties} = req.body
         const categoryDoc = await Category.create({name, parent: parentCategory || undefined, properties})
