@@ -3,5 +3,5 @@ import { Order } from "@/model/Order";
 
 export default async function handler(req, res) {
     await mongooseConnect()
-    res.json(await Order.find().sort({createAt:-1}))
+    res.json(await Order.find().sort({createdAt:-1}))
 }

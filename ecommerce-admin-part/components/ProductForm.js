@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import Spinner from "./Spinner";
 import { ReactSortable } from "react-sortablejs";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+const API_BASE_URL = process.env.NODE_ENV === 'development' ? 
+                     'http://localhost:3001' : 
+                     process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function ProductForm({
     _id,
     title: existingTitle,
@@ -76,15 +80,15 @@ export default function ProductForm({
     const propertiesToFill = [];
     if (categories.length > 0 && category) {
         let catInfo = categories.find(({_id}) => _id === category);
-        if (catInfo) { // 这里检查catInfo是否定义
+        if (catInfo) {
             propertiesToFill.push(...catInfo.properties);
             while (catInfo?.parent?._id) {
                 const parentCat = categories.find(({_id}) => _id === catInfo?.parent?._id);
-                if (parentCat) { // 同样在这里也加上检查
+                if (parentCat) { 
                     propertiesToFill.push(...parentCat.properties);
                     catInfo = parentCat;
                 } else {
-                    break; // 如果没有找到parentCat，跳出循环
+                    break;
                 }
             }
         }
