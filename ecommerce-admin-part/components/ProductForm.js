@@ -5,9 +5,10 @@ import Spinner from "./Spinner";
 import { ReactSortable } from "react-sortablejs";
 
 // const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
-const API_BASE_URL = process.env.NODE_ENV === 'development' ? 
-                     'http://localhost:3001' : 
-                     process.env.NEXT_PUBLIC_API_BASE_URL;
+// const API_BASE_URL = process.env.NODE_ENV === 'development' ? 
+//                      'http://localhost:3001' : 
+//                      process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = 'http://localhost:3001'
 
 export default function ProductForm({
     _id,
@@ -27,14 +28,17 @@ export default function ProductForm({
     const [isUploading, setIsUploading] = useState(false)
     const [goToProducts, setGoToProducts] = useState(false);
     const [categories, setCategories] = useState([])
+    const [categoriesLoading, setCategoriesLoading] = useState(false)
     const router = useRouter();
     useEffect(() => {
+        setCategoriesLoading(true)
         axios.get(`${API_BASE_URL}/api/categories`).then(result => {
             setCategories(result.data)
-        })
-        .catch(error => {
+        }).catch(error => {
             console.error('Failed to fetch categories:', error);
             // You might want to set some state here to show an error message to the user
+        }).finally(() => {
+            setCategoriesLoading(false)
         });
     }, [])
     async function saveProduct(e) {
@@ -109,6 +113,9 @@ export default function ProductForm({
                     <option key={category._id} value={category._id}>{category.name}</option>
                 ))}
             </select>
+            {categoriesLoading && (
+                <Spinner fullWidth={true}/>
+            )}
             {propertiesToFill.length > 0 && propertiesToFill.map(p => (
                 <div key={p._id} className="">
                     <label>{p.name}</label>

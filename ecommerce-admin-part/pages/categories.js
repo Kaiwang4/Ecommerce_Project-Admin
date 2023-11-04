@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import Spinner from "@/components/Spinner";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -10,14 +11,20 @@ function Categories({swal}) {
     const [parentCategory, setParentCategory] = useState('')
     const [categories, setCategories] = useState([])
     const [properties, setProperties] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
     const {data: session} = useSession()
     useEffect(() => {
         fetchCategories()
     }, [])
     function fetchCategories() {
+        setIsLoading(true)
         axios.get('/api/categories').then(result =>{
             setCategories(result.data) 
-        })
+        }).catch(error => {
+            console.error('There was an error fetching the categories', error);
+        }).finally(() => {
+            setIsLoading(false);
+        });
     }
     function editCategory(category) {
         setEditedCategory(category)
@@ -101,8 +108,8 @@ function Categories({swal}) {
     return (
         <Layout>
             <h1>Categories</h1>
-            {session.isAdmin && (<label>{editedCategory? `Edit category ${editedCategory.name}` : 'Create new category'}</label>)}
-            {session.isAdmin && (<form onSubmit={saveCategory}>
+            {session?.isAdmin && (<label>{editedCategory? `Edit category ${editedCategory.name}` : 'Create new category'}</label>)}
+            {session?.isAdmin && (<form onSubmit={saveCategory}>
                 <div className="flex gap-1">
                     <input 
                     type="text" 
@@ -164,6 +171,15 @@ function Categories({swal}) {
                         </tr>
                     </thead>
                     <tbody>
+                        {isLoading && (
+                            <tr>
+                                <td colSpan={3}>
+                                    <div className="py-4">
+                                        <Spinner fullWidth={true}/>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
                         {categories.length > 0 && categories.map(category => (
                             <tr key={category._id}>
                                 <td>{category.name}</td>
