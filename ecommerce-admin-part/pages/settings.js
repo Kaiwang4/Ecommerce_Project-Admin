@@ -8,44 +8,47 @@ function SettingsPage({swal}) {
     const [products, setProducts] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [featuredProductId, setFeaturedProductId] = useState('')
-    const [featuredLoading, setFeaturedLoading] = useState(false)
+    const [shippingFee, setShippingFee] = useState('')
     useEffect(() => {
         setIsLoading(true)
-        setFeaturedLoading(true)
-        axios.get('/api/products').then(res => {
-            setProducts(res.data)
-        }).catch(error => {
-            console.error('There was an error fetching the settings', error);
-        }).finally(() => {
+        Promise.all([
+            axios.get('/api/products'),
+            axios.get('/api/settings?name=featuredProductId'),
+            axios.get('/api/settings?name=shippingFee'),
+        ]).then(([productsRes, featuredRes, shippingFeeRes]) => {
+            setProducts(productsRes.data)
+            setFeaturedProductId(featuredRes.data.value)
+            setShippingFee(shippingFeeRes.data.value)
             setIsLoading(false);
-        });
-        axios.get('/api/settings?name=featuredProductId').then(res => {
-            setFeaturedProductId(res.data.value)
         }).catch(error => {
-            console.error('There was an error fetching the featured product', error);
-        }).finally(() => {
-            setFeaturedLoading(false);
+            console.error("Error fetching data: ", error);
+            setIsLoading(false);
         });
     }, [])
 
     async function saveSettings() {
+        setIsLoading(true)
         await axios.put('/api/settings', {
             name: 'featuredProductId',
             value: featuredProductId,
-        }).then(() => {
-            swal.fire({
-                title: 'Settings saved!',
-                icon: 'success',
-            })
+        })
+        await axios.put('/api/settings', {
+            name: 'shippingFee',
+            value: shippingFee,
+        })
+        setIsLoading(false)
+        await swal.fire({
+            title: 'Settings saved!',
+            icon: 'success',
         })
     }
     return (
         <Layout>
             <h1>Settings</h1>
-            {(isLoading || featuredLoading) && (
+            { isLoading && (
                 <Spinner />
             )}
-            {(!isLoading && !featuredLoading) && (
+            { !isLoading && (
                 <>
                     <label>Featured product</label>
                     <select value={featuredProductId} onChange={e => setFeaturedProductId(e.target.value)}>
@@ -53,6 +56,8 @@ function SettingsPage({swal}) {
                             <option key={product._id} value={product._id}>{product.title}</option>
                         ))}
                     </select>
+                    <label>Shipping price (in AUD)</label>
+                    <input type="number" value={shippingFee} onChange={e => setShippingFee(e.target.value)}/>
                     <div>
                         <button onClick={saveSettings} className="btn-primary">Save Settings</button>
                     </div>
