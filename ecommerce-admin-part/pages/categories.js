@@ -185,8 +185,8 @@ function Categories({swal}) {
                                 <td>{category.name}</td>
                                 <td>{category?.parent?.name}</td>
                                 <td>
-                                    {session.isAdmin && (<button onClick={() => editCategory(category)} className="btn-default mr-1">Edit</button>)}
-                                    {session.isAdmin && (<button onClick={() => deleteCategory(category)} className="btn-red">Delete</button>)}
+                                    {session?.isAdmin && (<button onClick={() => editCategory(category)} className="btn-default mr-1">Edit</button>)}
+                                    {session?.isAdmin && (<button onClick={() => deleteCategory(category)} className="btn-red">Delete</button>)}
                                 </td>
                             </tr>
                         ))}

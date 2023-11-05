@@ -11,7 +11,7 @@ COPY . .
 RUN npm install -force
 
 # 暴露应用程序运行的端口
-EXPOSE 3000
+EXPOSE 3001
 
 # 启动应用程序
 CMD ["npm", "run", "dev"]
