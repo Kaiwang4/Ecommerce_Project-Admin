@@ -24,7 +24,7 @@ export default function DeleteProductPage() {
         <Layout>
             {/* <h1 className="text-center">Do you really want to delete&nbsp;"{productInfo?.title}"?</h1> */}
             <h1 className="text-center">
-                Do you really want to delete&nbsp;"{productInfo?.title.replace(/"/g, '&quot;')}"?
+                Do you really want to delete&nbsp;&quot;{productInfo?.title.replace(/"/g, '&quot;')}&quot;?
             </h1>
             <div className="flex gap-2 justify-center">
                 <button className="btn-red" onClick={deleteProduct}>Yes</button>
