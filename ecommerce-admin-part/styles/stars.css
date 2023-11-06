@@ -1,5 +1,14 @@
+.tile-topline {
+    @apply flex gap-1 justify-center
+}
+.icon {
+    @apply w-4 h-4 text-gray-500;
+}
 .tile{
     @apply bg-white shadow-md p-2 text-blue-900 text-center;
+}
+.tile-grid{
+    @apply grid grid-cols-1 sm:grid-cols-3 gap-4;
 }
 .tile-header{
     @apply uppercase text-gray-500 font-bold text-xs m-0;

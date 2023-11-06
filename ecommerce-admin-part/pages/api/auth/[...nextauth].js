@@ -10,6 +10,7 @@ async function isAdminEmail(email) {
   return !! (await Admin.findOne({email}))
 }
 export const authOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,

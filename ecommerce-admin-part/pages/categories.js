@@ -31,7 +31,7 @@ function Categories({swal}) {
         setName(category.name)
         setParentCategory(category.parent?._id)
         // console.log("Editing category:", category);
-        // console.log("Properties values:", category.properties.map(p => p.values));
+        // console.log("Properties values:", category.properties.(p => p.values));
         setProperties(category.properties.map(({name, values}) => ({
             name, 
             values: values.join(',')

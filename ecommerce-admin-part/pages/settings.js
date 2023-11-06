@@ -3,12 +3,14 @@ import Spinner from "@/components/Spinner";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { withSwal } from "react-sweetalert2";
+import { useSession } from "next-auth/react"
 
 function SettingsPage({swal}) {
     const [products, setProducts] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [featuredProductId, setFeaturedProductId] = useState('')
     const [shippingFee, setShippingFee] = useState('')
+    const {data: session} = useSession()
     useEffect(() => {
         setIsLoading(true)
         Promise.all([
@@ -56,8 +58,12 @@ function SettingsPage({swal}) {
                             <option key={product._id} value={product._id}>{product.title}</option>
                         ))}
                     </select>
-                    <label>Shipping price (in AUD)</label>
-                    <input type="number" value={shippingFee} onChange={e => setShippingFee(e.target.value)}/>
+                    {session?.isAdmin && (
+                        <>
+                            <label>Shipping price (in AUD)</label>
+                            <input type="number" value={shippingFee} onChange={e => setShippingFee(e.target.value)}/>
+                        </>
+                    )}
                     <div>
                         <button onClick={saveSettings} className="btn-primary">Save Settings</button>
                     </div>

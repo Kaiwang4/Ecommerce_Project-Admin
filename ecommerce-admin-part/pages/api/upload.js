@@ -7,7 +7,6 @@ import { isAdminRequest } from '@/pages/api/auth/[...nextauth]';
 const bucketName = 'kai-next-ecommerce'
 
 
-
 export default async function handle(req, res) {
     await mongooseConnect()
     await isAdminRequest(req, res)
@@ -19,7 +18,6 @@ export default async function handle(req, res) {
             resolve({fields,files})
         })
     })
-    console.log(files.file.length);
     const client = new S3Client({
         region: 'ap-southeast-2',
         credentials: {

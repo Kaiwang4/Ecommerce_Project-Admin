@@ -3,14 +3,11 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Spinner from "./Spinner";
 import { ReactSortable } from "react-sortablejs";
+import { withSwal } from "react-sweetalert2"
 
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
-// const API_BASE_URL = process.env.NODE_ENV === 'development' ? 
-//                      'http://localhost:3001' : 
-//                      process.env.NEXT_PUBLIC_API_BASE_URL;
-const API_BASE_URL = 'http://localhost:3001'
+const API_BASE_URL = process.env.NEXTAUTH_URL
 
-export default function ProductForm({
+function ProductForm({
     _id,
     title: existingTitle,
     description: existingDescription,
@@ -18,6 +15,7 @@ export default function ProductForm({
     images: existingImages,
     category: existingCategory,
     properties: existingProperties,
+    swal
 }) {
     const [title,setTitle] = useState(existingTitle || '');
     const [description,setDescription] = useState(existingDescription || '');
@@ -36,7 +34,6 @@ export default function ProductForm({
             setCategories(result.data)
         }).catch(error => {
             console.error('Failed to fetch categories:', error);
-            // You might want to set some state here to show an error message to the user
         }).finally(() => {
             setCategoriesLoading(false)
         });
@@ -45,18 +42,40 @@ export default function ProductForm({
         e.preventDefault();
         const data = {title, description, price, images, category, properties: productProperties}
         // console.log(_id);
-        if (_id) {
-            //update product info
-            await axios.put(`${API_BASE_URL}/api/products`, {...data, _id})
-        } else {
-            // create new product
-            await axios.post(`${API_BASE_URL}/api/products`, data);
+        try{
+            let response
+            if (_id) {
+                //update product info
+                response = await axios.put(`${API_BASE_URL}/api/products`, {...data, _id})
+            } else {
+                // create new product
+                response = await axios.post(`${API_BASE_URL}/api/products`, data);
+            }
+
+            if (response.status === 200 || response.status === 201) {
+                swal.fire({
+                    title: 'Success!',
+                    text: 'Product updated sucessfully!!!',
+                    icon: 'success',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        setGoToProducts(true);
+                    }
+                });
+            }
+        } catch (error) {
+            swal.fire({
+              title: 'Error!',
+              text: error.response?.data?.message || 'There was an error saving the product.',
+              icon: 'error',
+            });
+            console.error('Failed to save the product:', error);
         }
-        setGoToProducts(true);
     }
     if (goToProducts) router.push(`${API_BASE_URL}/products`);
+
     async function uploadImages(e) {
-        // console.log(e);
+        e.preventDefault();
         const files = e.target?.files;
         if (files?.length > 0) {
             setIsUploading(true)
@@ -64,10 +83,23 @@ export default function ProductForm({
             for (const file of files) {
                 data.append('file', file)
             }
-            const res = await axios.post(`${API_BASE_URL}/api/upload`, data)
-            setImages(oldImages => {
-                return [...oldImages, ...res.data.links]
-            })
+            try{
+                const res = await axios.post(`${API_BASE_URL}/api/upload`, data)
+                setImages(oldImages => {
+                    return [...oldImages, ...res.data.links]
+                })
+                swal.fire({ 
+                    title: 'Success!',
+                    text: 'Images uploaded successfully!',
+                    icon: 'success',
+                })
+            } catch (error) {
+                swal.fire({
+                    title: 'Error!',
+                    text: error.response?.data?.message || 'An error occurred while uploading the images.',
+                    icon: 'error',
+                });
+            }
             setIsUploading(false)
         }
     }
@@ -116,14 +148,14 @@ export default function ProductForm({
             {categoriesLoading && (
                 <Spinner fullWidth={true}/>
             )}
-            {propertiesToFill.length > 0 && propertiesToFill.map(p => (
-                <div key={p._id} className="">
-                    <label>{p.name}</label>
+            {propertiesToFill.length > 0 && propertiesToFill.map((property, index) => (
+                <div key={index} className="">
+                    <label>{property.name}</label>
                     <div>
-                        <select value={productProperties[p.name]}
-                                onChange={e => setProductProp(p.name, e.target.value)}>
-                            {p.values.map(v => (
-                                <option key={p._id} value={v}>{v}</option>
+                        <select value={productProperties[property.name]}
+                                onChange={e => setProductProp(property.name, e.target.value)}>
+                            {property.values.map(value => (
+                                <option key={value} value={value}>{value}</option>
                             ))}
                         </select>
                     </div>
@@ -137,8 +169,8 @@ export default function ProductForm({
                 list={images} 
                 className="flex flex-wrap gap-1"
                 setList={updateImagesOrder}>
-                    {!!images?.length && images.map(link => (
-                        <div key={link} className="h-24 bg-white p-4 shadow-sm rounded-sm border border-gray-200">
+                    {!!images?.length && images.map((link, index) => (
+                        <div key={index} className="h-24 bg-white p-4 shadow-sm rounded-sm border border-gray-200">
                             <img key={link} src={link} className="rounded-lg"/>
                         </div>
                     ))}
@@ -177,3 +209,5 @@ export default function ProductForm({
         </form>
     )
 }
+
+export default withSwal(ProductForm)
